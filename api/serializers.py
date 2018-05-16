@@ -1,0 +1,55 @@
+from django.contrib.auth.models import User
+from rest_framework.serializers import *
+
+from contacts import models
+
+
+class UserSerializer(ModelSerializer):
+    detail = HyperlinkedIdentityField(view_name='user-detail', lookup_field='username')
+
+    class Meta:
+        model = User
+        fields = ('username', 'detail')
+
+
+class UserDetailSerializer(ModelSerializer):
+    tickets = HyperlinkedRelatedField(many=True, read_only=True, source='contactuser.tickets', view_name='ticket-detail')
+    root_group = HyperlinkedRelatedField(read_only=True, source='contactuser.root_group', view_name='group-detail')
+
+    class Meta:
+        model = User
+        fields = ('username', 'email', 'tickets', 'root_group')
+
+
+class ContactInfoSerializer(ModelSerializer):
+    class Meta:
+        model = models.ContactInfo
+        fields = ('type', 'version', 'data')
+
+
+class BundleSerializer(ModelSerializer):
+    class Meta:
+        model = models.Bundle
+        fields = ('id', 'last_modified', 'is_contact')
+
+
+class ContactSerializer(BundleSerializer):
+    information = ContactInfoSerializer(many=True, source='infos')
+
+    class Meta(BundleSerializer.Meta):
+        fields = BundleSerializer.Meta.fields + ('information',)
+
+
+class GroupSerializer(BundleSerializer):
+    tickets = HyperlinkedRelatedField(read_only=True, view_name='ticket-detail')
+
+    class Meta(BundleSerializer.Meta):
+        fields = BundleSerializer.Meta.fields + ('tickets',)
+
+
+class TicketSerializer(ModelSerializer):
+    last_modified = DateTimeField(source='bundle.last_modified')
+
+    class Meta:
+        model = models.Ticket
+        fields = ('id', 'bundle', 'last_modified', 'can_share', 'can_edit')
