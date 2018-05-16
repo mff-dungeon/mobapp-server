@@ -1,4 +1,3 @@
-from django.contrib.auth.models import User
 from django.db.models import Q
 from rest_framework import viewsets, mixins
 
@@ -23,6 +22,7 @@ class FilterKnownBundles(object):
             return Bundle.objects.none()
         return queryset.filter(Q(tickets__owner=request.user) | Q(owner=request.user))
 
+
 class FilterKnownContactInfos(object):
     def filter_queryset(self, request, queryset, view):
         if request.user.is_superuser:
@@ -30,12 +30,6 @@ class FilterKnownContactInfos(object):
         if not request.user.is_authenticated:
             return ContactInfoViewSet.objects.none()
         return queryset.filter(Q(bundle__tickets__owner=request.user) | Q(bundle__owner=request.user))
-
-
-class UserViewSet(mixins.RetrieveModelMixin, mixins.ListModelMixin, viewsets.GenericViewSet):
-    queryset = User.objects.all()
-    lookup_field = 'username'
-    serializer_class = serializers.UserSerializer
 
 
 class BundleViewSet(viewsets.ReadOnlyModelViewSet):
@@ -74,9 +68,10 @@ class TicketViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.G
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)
 
-class ContactInfoViewSet(mixins.RetrieveModelMixin, mixins.CreateModelMixin, mixins.DestroyModelMixin, mixins.UpdateModelMixin, viewsets.GenericViewSet):
+
+class ContactInfoViewSet(mixins.RetrieveModelMixin, mixins.CreateModelMixin, mixins.DestroyModelMixin,
+                         mixins.UpdateModelMixin, viewsets.GenericViewSet):
     queryset = Ticket.objects.all()
     lookup_field = 'id'
     serializer_class = serializers.ContactInfoSerializer
     filter_backends = (FilterKnownContactInfos,)
-

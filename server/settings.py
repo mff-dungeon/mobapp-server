@@ -53,6 +53,13 @@ MIDDLEWARE = [
     'server.middleware.QueryPrintingMiddleware'
 ]
 
+REST_FRAMEWORK = {
+    'DEFAULT_RENDERER_CLASSES': (
+        'server.renderers.MetadataJSONRenderer',
+        'rest_framework.renderers.BrowsableAPIRenderer',
+    ),
+}
+
 ROOT_URLCONF = 'server.urls'
 
 TEMPLATES = [
