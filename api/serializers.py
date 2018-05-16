@@ -22,9 +22,10 @@ class UserDetailSerializer(ModelSerializer):
 
 
 class ContactInfoSerializer(ModelSerializer):
+    contact = PrimaryKeyRelatedField(write_only=True, queryset=models.Bundle.objects.filter(is_contact=True))
     class Meta:
         model = models.ContactInfo
-        fields = ('type', 'version', 'data')
+        fields = ('id', 'type', 'version', 'data', 'contact')
 
 
 class BundleSerializer(ModelSerializer):
@@ -34,7 +35,8 @@ class BundleSerializer(ModelSerializer):
 
 
 class ContactSerializer(BundleSerializer):
-    information = ContactInfoSerializer(many=True, source='infos')
+    is_contact = HiddenField(default=True)
+    information = ContactInfoSerializer(many=True, read_only=True, source='infos')
 
     class Meta(BundleSerializer.Meta):
         fields = BundleSerializer.Meta.fields + ('information',)
@@ -42,6 +44,7 @@ class ContactSerializer(BundleSerializer):
 
 class GroupSerializer(BundleSerializer):
     tickets = HyperlinkedRelatedField(read_only=True, view_name='ticket-detail')
+    is_contact = HiddenField(default=False)
 
     class Meta(BundleSerializer.Meta):
         fields = BundleSerializer.Meta.fields + ('tickets',)

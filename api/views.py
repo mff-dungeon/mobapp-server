@@ -23,6 +23,14 @@ class FilterKnownBundles(object):
             return Bundle.objects.none()
         return queryset.filter(Q(tickets__owner=request.user) | Q(owner=request.user))
 
+class FilterKnownContactInfos(object):
+    def filter_queryset(self, request, queryset, view):
+        if request.user.is_superuser:
+            return queryset
+        if not request.user.is_authenticated:
+            return ContactInfoViewSet.objects.none()
+        return queryset.filter(Q(bundle__tickets__owner=request.user) | Q(bundle__owner=request.user))
+
 
 class UserViewSet(mixins.RetrieveModelMixin, mixins.ListModelMixin, viewsets.GenericViewSet):
     queryset = User.objects.all()
@@ -37,18 +45,24 @@ class BundleViewSet(viewsets.ReadOnlyModelViewSet):
     filter_backends = (FilterKnownBundles,)
 
 
-class ContactViewSet(viewsets.ReadOnlyModelViewSet):
+class ContactViewSet(viewsets.ModelViewSet):
     queryset = Bundle.objects.filter(is_contact=True)
     lookup_field = 'id'
     serializer_class = serializers.ContactSerializer
     filter_backends = (FilterKnownBundles,)
 
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user, is_contact=True)
 
-class GroupViewSet(viewsets.ReadOnlyModelViewSet):
+
+class GroupViewSet(viewsets.ModelViewSet):
     queryset = Bundle.objects.filter(is_contact=False)
     lookup_field = 'id'
     serializer_class = serializers.GroupSerializer
     filter_backends = (FilterKnownBundles,)
+
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user, is_contact=True)
 
 
 class TicketViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
@@ -59,3 +73,10 @@ class TicketViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.G
 
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)
+
+class ContactInfoViewSet(mixins.RetrieveModelMixin, mixins.CreateModelMixin, mixins.DestroyModelMixin, mixins.UpdateModelMixin, viewsets.GenericViewSet):
+    queryset = Ticket.objects.all()
+    lookup_field = 'id'
+    serializer_class = serializers.ContactInfoSerializer
+    filter_backends = (FilterKnownContactInfos,)
+
