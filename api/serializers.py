@@ -39,7 +39,7 @@ class ContactSerializer(BundleSerializer):
     information = ContactInfoSerializer(many=True, read_only=True, source='infos')
 
     class Meta(BundleSerializer.Meta):
-        fields = BundleSerializer.Meta.fields + ('information',)
+        fields = BundleSerializer.Meta.fields + ('label', 'information',)
 
 
 class GroupSerializer(BundleSerializer):
@@ -47,7 +47,7 @@ class GroupSerializer(BundleSerializer):
     is_contact = HiddenField(default=False)
 
     class Meta(BundleSerializer.Meta):
-        fields = BundleSerializer.Meta.fields + ('tickets',)
+        fields = BundleSerializer.Meta.fields + ('label', 'tickets',)
 
 
 class TicketSerializer(ModelSerializer):

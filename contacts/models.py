@@ -12,7 +12,7 @@ class Bundle(Model):
     last_modified = DateTimeField(auto_now=True)
 
     # TODO: limit groups -> contacts, otherwise loops might be created
-    inner_bundles = ManyToManyField('Bundle', related_name='in_bundles')
+    inner_bundles = ManyToManyField('Bundle', related_name='in_bundles', blank=True)
 
     is_contact = BooleanField()
 
