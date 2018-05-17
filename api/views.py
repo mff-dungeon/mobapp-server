@@ -22,7 +22,7 @@ class FilterKnownBundles(object):
             return queryset
         if not request.user.is_authenticated:
             return Bundle.objects.none()
-        return queryset.filter(Q(tickets__owner=request.user) | Q(owner=request.user))
+        return queryset.filter(Q(tickets__bundles__tickets__owner=request.user) | Q(tickets__owner=request.user) | Q(owner=request.user)).distinct()
 
 
 class FilterKnownContactInfos(object):
@@ -31,7 +31,7 @@ class FilterKnownContactInfos(object):
             return queryset
         if not request.user.is_authenticated:
             return ContactInfoViewSet.objects.none()
-        return queryset.filter(Q(bundle__tickets__owner=request.user) | Q(bundle__owner=request.user))
+        return queryset.filter(Q(bundle__tickets__owner=request.user) | Q(bundle__owner=request.user)).distinct()
 
 
 class BundleViewSet(viewsets.ReadOnlyModelViewSet):
