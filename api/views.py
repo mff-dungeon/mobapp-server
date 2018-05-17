@@ -22,7 +22,7 @@ class FilterKnownBundles(object):
             return queryset
         if not request.user.is_authenticated:
             return Bundle.objects.none()
-        return queryset.filter(Q(tickets__bundles__tickets__owner=request.user) | Q(tickets__owner=request.user) | Q(owner=request.user)).distinct()
+        return queryset.filter(Q(in_bundles__tickets__owner=request.user) | Q(tickets__owner=request.user) | Q(owner=request.user)).distinct()
 
 
 class FilterKnownContactInfos(object):

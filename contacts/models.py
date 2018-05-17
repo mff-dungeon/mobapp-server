@@ -11,6 +11,9 @@ class Bundle(Model):
     owner = ForeignKey(User, related_name='owned_contacts', on_delete=SET_NULL, null=True)
     last_modified = DateTimeField(auto_now=True)
 
+    # TODO: limit groups -> contacts, otherwise loops might be created
+    inner_bundles = ManyToManyField('Bundle', related_name='in_bundles')
+
     is_contact = BooleanField()
 
     @property
