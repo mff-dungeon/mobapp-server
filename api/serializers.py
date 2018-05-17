@@ -55,4 +55,4 @@ class TicketSerializer(ModelSerializer):
 
     class Meta:
         model = models.Ticket
-        fields = ('id', 'bundle', 'last_modified', 'can_share', 'can_edit')
+        fields = ('id', 'bundle', 'last_modified', 'label', 'can_share', 'can_edit')
