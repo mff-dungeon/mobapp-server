@@ -81,14 +81,16 @@ class TicketCloneHandler(viewsets.GenericViewSet):
             # it is forbidden to share this ticket
             raise PermissionDenied()
 
-        if Ticket.objects.filter(owner=self.request.user, cloned_from=instance).count() > 0:
-            # already cloned this ticket
-            raise PermissionDenied()
-
-        clone = Ticket()
-        clone.clone_other(instance)
-        clone.owner = self.request.user
-        clone.save()
+        cloned_tickets = Ticket.objects.filter(owner=self.request.user, cloned_from=instance)
+        if cloned_tickets.count() == 0:
+            # create clone of the ticket
+            clone = Ticket()
+            clone.clone_other(instance)
+            clone.owner = self.request.user
+            clone.save()
+        else:
+            # here we assume that the count is 0 or 1
+            clone = cloned_tickets.get()
 
         serializer = serializers.TicketSerializer(clone)
         return Response(serializer.data)
