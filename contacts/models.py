@@ -42,9 +42,9 @@ class Ticket(Model):
     bundle = ForeignKey(Bundle, related_name='tickets', on_delete=PROTECT)
     owner = ForeignKey(User, related_name='tickets', on_delete=CASCADE)
 
-    cloned_from = ForeignKey('Ticket', blank=True, related_name='children',
+    cloned_from = ForeignKey('Ticket', blank=True, null=True, related_name='children',
                              on_delete=PROTECT)  # Direct clone of, e.g. predecessor in the tree
-    cloned_root = ForeignKey('Ticket', blank=True, related_name='all_clones',
+    cloned_root = ForeignKey('Ticket', blank=True, null=True, related_name='all_clones',
                              on_delete=PROTECT)  # The root of the tree
 
     clones_shareable = BooleanField()
