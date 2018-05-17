@@ -73,12 +73,16 @@ class TicketCloneHandler(viewsets.GenericViewSet):
         ticket_id = kwargs['id']
         instance = Ticket.objects.get(id=ticket_id)
 
-        if instance.owner.id == self.request.user.id:
+        if instance.owner == self.request.user:
             # pretend that user-owned tickets do not exist for this endpoint
             raise NotFound()
 
         if not instance.can_share:
             # it is forbidden to share this ticket
+            raise PermissionDenied()
+
+        if Ticket.objects.filter(owner=self.request.user, cloned_from=instance).count() > 0:
+            # already cloned this ticket
             raise PermissionDenied()
 
         clone = Ticket()
