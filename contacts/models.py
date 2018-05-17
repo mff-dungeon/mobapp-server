@@ -61,6 +61,19 @@ class Ticket(Model):
         b = self.bundle
         return "Ticket <%s> \"%s\" for %s" % (self.id, self.label, self.bundle)
 
+    def clone_other(self, other):
+        self.label = 'Clone of %s' % other.label
+        self.bundle = other.bundle
+
+        self.cloned_from = other
+        self.cloned_root = other.cloned_root
+
+        self.clones_shareable = other.clones_shareable
+        self.clones_editable = other.clones_editable
+
+        self.can_share = other.clones_shareable
+        self.can_edit = other.clones_editable
+
 
 class ContactUser(Model):
     user = OneToOneField(User, on_delete=CASCADE)

@@ -1,5 +1,7 @@
 from django.db.models import Q
 from rest_framework import viewsets, mixins
+from rest_framework.exceptions import PermissionDenied, NotFound
+from rest_framework.response import Response
 
 from api import serializers
 from contacts.models import Bundle, Ticket
@@ -57,6 +59,35 @@ class GroupViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user, is_contact=True)
+
+
+class TicketCloneHandler(viewsets.GenericViewSet):
+    queryset = Ticket.objects.all()
+    lookup_field = 'id'
+    serializer_class = serializers.TicketSerializer
+
+    """
+    Clone a ticket.
+    """
+    def update(self, request, *args, **kwargs):
+        ticket_id = kwargs['id']
+        instance = Ticket.objects.get(id=ticket_id)
+
+        if instance.owner.id == self.request.user.id:
+            # pretend that user-owned tickets do not exist for this endpoint
+            raise NotFound()
+
+        if not instance.can_share:
+            # it is forbidden to share this ticket
+            raise PermissionDenied()
+
+        clone = Ticket()
+        clone.clone_other(instance)
+        clone.owner = self.request.user
+        clone.save()
+
+        serializer = serializers.TicketSerializer(clone)
+        return Response(serializer.data)
 
 
 class TicketViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
