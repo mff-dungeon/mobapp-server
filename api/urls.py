@@ -13,5 +13,6 @@ router.register(r'infos', ContactInfoViewSet, base_name='info')
 
 urlpatterns = [
     url(r'^auth/', include('rest_framework.urls', namespace='rest_framework')),
+    url(r'^token/', TokenView.as_view()),
     url(r'^', include(router.urls)),
 ]

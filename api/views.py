@@ -1,7 +1,11 @@
 from django.db.models import Q
 from rest_framework import viewsets, mixins
+from rest_framework.authentication import BasicAuthentication
+from rest_framework.authtoken.models import Token
 from rest_framework.exceptions import PermissionDenied, NotFound
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from api import serializers
 from contacts.models import Bundle, Ticket
@@ -37,6 +41,7 @@ class FilterKnownContactInfos(object):
 class BundleViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Bundle.objects.all()
     lookup_field = 'id'
+    permission_classes = (IsAuthenticated,)
     serializer_class = serializers.BundleSerializer
     filter_backends = (FilterKnownBundles,)
 
@@ -44,6 +49,7 @@ class BundleViewSet(viewsets.ReadOnlyModelViewSet):
 class ContactViewSet(viewsets.ModelViewSet):
     queryset = Bundle.objects.filter(is_contact=True)
     lookup_field = 'id'
+    permission_classes = (IsAuthenticated,)
     serializer_class = serializers.ContactSerializer
     filter_backends = (FilterKnownBundles,)
 
@@ -54,6 +60,7 @@ class ContactViewSet(viewsets.ModelViewSet):
 class GroupViewSet(viewsets.ModelViewSet):
     queryset = Bundle.objects.filter(is_contact=False)
     lookup_field = 'id'
+    permission_classes = (IsAuthenticated,)
     serializer_class = serializers.GroupSerializer
     filter_backends = (FilterKnownBundles,)
 
@@ -64,6 +71,7 @@ class GroupViewSet(viewsets.ModelViewSet):
 class TicketCloneHandler(viewsets.GenericViewSet):
     queryset = Ticket.objects.all()
     lookup_field = 'id'
+    permission_classes = (IsAuthenticated,)
     serializer_class = serializers.TicketSerializer
 
     """
@@ -100,6 +108,7 @@ class TicketViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.G
     queryset = Ticket.objects.all()
     lookup_field = 'id'
     serializer_class = serializers.TicketSerializer
+    permission_classes = (IsAuthenticated,)
     filter_backends = (FilterOwnedTickets,)
 
     def perform_create(self, serializer):
@@ -110,5 +119,25 @@ class ContactInfoViewSet(mixins.RetrieveModelMixin, mixins.CreateModelMixin, mix
                          mixins.UpdateModelMixin, viewsets.GenericViewSet):
     queryset = Ticket.objects.all()
     lookup_field = 'id'
+    permission_classes = (IsAuthenticated,)
     serializer_class = serializers.ContactInfoSerializer
     filter_backends = (FilterKnownContactInfos,)
+
+
+class TokenView(APIView):
+    authentication_classes = (BasicAuthentication,)
+    permission_classes = (IsAuthenticated,)
+
+    def get(self, request, format=None):
+        tokens = Token.objects.filter(user=self.request.user)
+
+        if tokens.count() > 0:
+            # assuming there is 0 or 1 token at all times
+            token = tokens.get()
+        else:
+            token = Token.objects.create(user=self.request.user)
+
+        content = {
+            'token': str(token.key),
+        }
+        return Response(content)
