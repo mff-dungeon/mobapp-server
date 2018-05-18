@@ -43,11 +43,11 @@ class ContactSerializer(BundleSerializer):
 
 
 class GroupSerializer(BundleSerializer):
-    tickets = HyperlinkedRelatedField(read_only=True, view_name='ticket-detail')
+    inner_bundles = BundleSerializer(many=True, read_only=True)
     is_contact = HiddenField(default=False)
 
     class Meta(BundleSerializer.Meta):
-        fields = BundleSerializer.Meta.fields + ('label', 'tickets',)
+        fields = BundleSerializer.Meta.fields + ('label', 'inner_bundles')
 
 
 class TicketSerializer(ModelSerializer):
