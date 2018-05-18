@@ -36,9 +36,6 @@ REST_FRAMEWORK = {
         'server.renderers.MetadataJSONRenderer',
         'rest_framework.renderers.BrowsableAPIRenderer',
     ),
-    'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework.authentication.TokenAuthentication',
-    )
 }
 
 ROOT_URLCONF = 'server.urls'

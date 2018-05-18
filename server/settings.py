@@ -8,6 +8,10 @@ EMAIL_HOST_USER = '9ac984c2961df3'
 EMAIL_HOST_PASSWORD = '97f40f167e74b6'
 EMAIL_PORT = '2525'
 
+REST_FRAMEWORK['DEFAULT_AUTHENTICATION_CLASSES'] = (
+    'rest_framework.authentication.TokenAuthentication',
+)
+
 # Configure Django App for Heroku.
 import django_heroku
 django_heroku.settings(locals())
