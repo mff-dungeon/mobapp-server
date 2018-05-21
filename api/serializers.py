@@ -21,13 +21,6 @@ class UserDetailSerializer(ModelSerializer):
         fields = ('username', 'email', 'tickets', 'root_group')
 
 
-class ContactInfoSerializer(ModelSerializer):
-    contact = PrimaryKeyRelatedField(write_only=True, queryset=models.Bundle.objects.filter(is_contact=True))
-    class Meta:
-        model = models.ContactInfo
-        fields = ('id', 'type', 'version', 'data', 'contact')
-
-
 class BundleSerializer(ModelSerializer):
     class Meta:
         model = models.Bundle
@@ -36,7 +29,6 @@ class BundleSerializer(ModelSerializer):
 
 class ContactSerializer(BundleSerializer):
     is_contact = HiddenField(default=True)
-    information = ContactInfoSerializer(many=True, read_only=True, source='infos')
 
     class Meta(BundleSerializer.Meta):
         fields = BundleSerializer.Meta.fields + ('label', 'information',)

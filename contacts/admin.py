@@ -3,7 +3,7 @@ from .models import *
 
 # Register your models here.
 models = (
-    Bundle, ContactInfo, ContactUser, Ticket
+    Bundle, ContactUser, Ticket
 )
 
 for m in models:

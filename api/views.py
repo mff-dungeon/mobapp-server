@@ -115,15 +115,6 @@ class TicketViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.G
         serializer.save(owner=self.request.user)
 
 
-class ContactInfoViewSet(mixins.RetrieveModelMixin, mixins.CreateModelMixin, mixins.DestroyModelMixin,
-                         mixins.UpdateModelMixin, viewsets.GenericViewSet):
-    queryset = Ticket.objects.all()
-    lookup_field = 'id'
-    permission_classes = (IsAuthenticated,)
-    serializer_class = serializers.ContactInfoSerializer
-    filter_backends = (FilterKnownContactInfos,)
-
-
 class TokenView(APIView):
     authentication_classes = (BasicAuthentication,)
     permission_classes = (IsAuthenticated,)

@@ -15,6 +15,7 @@ class Bundle(Model):
     inner_bundles = ManyToManyField('Bundle', related_name='in_bundles', blank=True)
 
     is_contact = BooleanField()
+    information = JSONField(blank=True, default=list)
 
     @property
     def kind(self):
@@ -28,15 +29,6 @@ class Bundle(Model):
 
     def __repr__(self):
         return "%s <%s> \"%s\" by %s" % (self.kind, self.id, self.label, self.owner)
-
-
-class ContactInfo(Model):
-    id = UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    last_modified = DateTimeField(auto_now=True)
-    contact = ForeignKey(Bundle, related_name='infos', on_delete=CASCADE)
-    type = CharField(max_length=32)
-    version = PositiveSmallIntegerField(default=1)
-    data = JSONField()
 
 
 class Ticket(Model):
