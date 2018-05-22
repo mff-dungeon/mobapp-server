@@ -2,6 +2,7 @@ from django.db.models import Q
 from rest_framework import viewsets, mixins
 from rest_framework.authentication import BasicAuthentication
 from rest_framework.authtoken.models import Token
+from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied, NotFound
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -44,6 +45,25 @@ class BundleViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = (IsAuthenticated,)
     serializer_class = serializers.BundleSerializer
     filter_backends = (FilterKnownBundles,)
+
+    @action(methods=['post'], detail=True)
+    def token(self, request, id):
+        bundle = Bundle.objects.get(id=id)
+        if bundle is None:
+            raise NotFound()
+
+        new_ticket = Ticket.objects.create(
+            label=('Ticket of "%s"' % str(bundle)),
+            bundle=bundle,
+            owner=request.user,
+            clones_shareable=True, # FIXME: enough for the demo, lol
+            clones_editable=True,
+            can_share=True,
+            can_edit=True
+        )
+
+        serializer = serializers.TicketSerializer(new_ticket)
+        return Response(serializer.data)
 
 
 class ContactViewSet(viewsets.ModelViewSet):
